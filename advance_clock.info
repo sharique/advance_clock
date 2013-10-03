@@ -1,1 +1,5 @@
 name = Advance Clock
+description = Provides a plugin displaying the current time.
+core = 7.x
+package = Date/Time
+project = "advance_clock"

@@ -1,0 +1,66 @@
+<?php
+/**
+ * @file
+ * Enables site-wide keyword searching.
+ */
+
+/**
+ * This module holds functions useful for rooting the nodes while search.
+ * It works parallel to the search,
+ * Enhancing search to add user experience to get his interests
+ * On the bases of keywords he provided.
+ * Please contribute!
+ */
+
+/**
+ * Implements hook_help().
+ */
+function advance_clock_help($path) {
+  switch ($path) {
+    case 'admin/help#advance_clock':
+      return t('Welcome to Advance Clock. <p>As the name
+      suggests this module gets you the advance fucntionalities provided by clock module</p><p>This module provides 1) A customizable clock plugin over the block plugin by clock module thus this will provide an integration with panel pages and views depending upon the configuartion options choosen. This module will also provide per user configurable clock TODO: Add seconds option to clock</p>'
+      );
+  }
+}
+/**
+ * Implements hook_permission().
+ */
+function advance_clock_permission() {
+  return array(
+    'set advance clock' => array(
+      'title' => t('Add Advance Clock'),
+    ),
+    'edit advance clock' => array(
+      'title' => t('Edit Advance Clock'),
+    ),
+    'configure advance clock' => array(
+      'title' => t('Edit Advance Clock'),
+    ),    
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function advance_clock_menu() {
+  // Link to administer advance clock module.
+  $items['admin/advance_clock'] = array(
+    'title' => 'Advance Clock Confihuration',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('advance_clock_configuration_form'),
+    'description' => 'Enter Configuration settings for advance clock',
+    'access arguments' => array('configure advance clock'),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function advance_clock_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && !empty($plugin)) {
+    return 'plugins/' . $plugin;
+  }
+}
+

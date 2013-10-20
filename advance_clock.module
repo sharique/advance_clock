@@ -45,16 +45,135 @@ function advance_clock_permission() {
  */
 function advance_clock_menu() {
   // Link to administer advance clock module.
-  $items['admin/advance_clock'] = array(
-    'title' => 'Advance Clock Confihuration',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('advance_clock_configuration_form'),
-    'description' => 'Enter Configuration settings for advance clock',
-    'access arguments' => array('configure advance clock'),
+  $items['admin/config/advance-clock'] = array(
+    'title' => t('Advance Clock'),
+    'description' => t('Advance Clock settings'),
+    'position' => 'right',
+    'weight' => 1,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access administration pages'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
   );
+
+  $items['admin/config/advance-clock/advance-clock-settings'] = array(
+    'title' => t('Advance Clock settings'),
+    'description' => t('Advance Clock configurations tools.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('advance_clock_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'weight' => 2,
+    'file' => 'advance_clock.admin.inc',
+  );
+
+  $items['user/%user/add-clock'] = array(
+    'title' => t('Clock'),
+    'description' => t('Advance Clock configurations tools.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('advance_clock_add_clock_form'),
+    'access arguments' => array('access funky button'),
+    'type' => MENU_LOCAL_TASK,
+  );
+
   return $items;
 }
 
+function advance_clock_add_clock_form($form) {
+  // Text field
+  $form['clock_zone'] = array(
+    '#title' => t('Select Clock\'s Zones'),
+    '#type' => 'checkboxes',
+    '#options' => array('-5|Houston TX USA' => 'Houston, TX, USA', '-4|Washington DC  USA' => 'Washington, DC, USA', '+5.5|New Delhi India' => 'New Delhi India'),
+    '#default_value' => _advance_clock_get_user_clocks(),
+    '#required' => TRUE,
+  );
+  // Submit
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Save',
+  );
+  return $form;
+}
+
+function advance_clock_add_clock_form_submit($form, &$form_state) {
+  global $user;
+  $user_clocks = _advance_clock_get_user_clocks();
+  $zones = implode(',', array_filter($form_state['values']['clock_zone']));
+  if (count($user_clocks)) {
+    $num_updated = db_update('advance_clock')
+      ->fields(array('clock_zone' => $zones))
+      ->condition('uid', $user->uid, '=')
+      ->execute();
+  }
+  else {
+    $query_advance_clock = db_insert('advance_clock')
+      ->fields(array('uid' => $user->uid, 'clock_zone' => $zones, 'timestamp' => time()))->execute();
+  }
+}
+
+function _advance_clock_get_user_clocks() {
+  global $user;
+  $query_advance_clock_list = db_select('advance_clock', 'ac');
+  $query_advance_clock_list->fields('ac', array('clock_zone'));
+  $query_advance_clock_list->condition('ac.uid', $user->uid, '=');
+  $advance_clock_result = $query_advance_clock_list->execute()->fetchAll();
+  $advance_user_clock = explode(',', $advance_clock_result[0]->clock_zone);
+  return $advance_user_clock;
+}
+
+/**
+ * hook_block_info.
+ */
+function advance_clock_block_info() {
+  // This example comes from node.module.
+  $blocks['advance_clock_user_clock'] = array(
+    'info' => t('Clocks'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  return $blocks;
+}
+
+/**
+ * hook_block_view.
+ */
+function advance_clock_block_view($delta = '') {
+  // This example is adapted from node.module.
+  $block = array();
+  switch ($delta) {
+    case 'advance_clock_user_clock':
+      $block['subject'] = t('Clocks');
+      $block['content'] = _advance_clock_clock_list();
+      break;
+  }
+  return $block;
+}
+
+function _advance_clock_clock_list() {
+  $module_path = drupal_get_path('module', 'advance_clock');
+  $users_clocks = _advance_clock_get_user_clocks();
+  $js_elements = '';
+  $output = '';
+  drupal_add_css('http://www.jqueryscript.net/css/jquerysctipttop.css', 'external');
+  drupal_add_js('http://code.jquery.com/jquery-latest.min.js', 'external');
+  drupal_add_js($module_path . '/js/jClocksGMT.js');
+  drupal_add_js($module_path . '/js/jquery.rotate.js');
+  drupal_add_css($module_path . '/css/jClocksGMT.css');
+  foreach ($users_clocks as $zone) {
+    $user_clocks = explode('|', $zone);
+    $js_elements .= "$('#" . drupal_html_class($user_clocks[1]) . "').jClocksGMT({offset: '" . $user_clocks[0] . "', hour24: true});";
+    $output .= '<div id="' . drupal_html_class($user_clocks[1]) . '" class="clock_container">
+    <div class="lbl">' . $user_clocks[1] . '</div>
+    <div class="clockHolder">
+    <div class="rotatingWrapper"><img class="hour" src="' . $module_path .'/images/clock_hour.png" /></div>
+    <div class="rotatingWrapper"><img class="min" src="' . $module_path .'/images/clock_min.png" /></div>
+    <div class="rotatingWrapper"><img class="sec" src="' . $module_path .'/images/clock_sec.png" /></div>
+    <img class="clock" src="' . $module_path .'/images/clock_face.png" /> </div>
+    <div class="digital"> <span class="hr"></span><span class="minute"></span> <span class="period"></span> </div>
+    </div>';
+  }
+  drupal_add_js("$(document).ready(function(){" . $js_elements . "});", 'inline'); 
+  return $output;
+}
 /**
  * Implements hook_ctools_plugin_directory().
  */

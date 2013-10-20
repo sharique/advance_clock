@@ -159,10 +159,10 @@ function _advance_clock_get_clocks() {
     "-11| Midway Island-Samoa" => "(GMT -11:00) Midway Island, Samoa",
     "-10|Hawaii" => "(GMT -10:00) Hawaii",
     "-9|Alaska" => "(GMT -9:00) Alaska",
-    "-8|Pacific Time (US &amp; Canada)" => "(GMT -8:00) Pacific Time (US &amp; Canada)",
-    "-7|Mountain Time (US &amp; Canada)" => "(GMT -7:00) Mountain Time (US &amp; Canada)",
-    "-6|Central Time (US &amp; Canada) Mexico City" => "(GMT -6:00) Central Time (US &amp; Canada), Mexico City",
-    "-5|Eastern Time (US &amp; Canada) Bogota Lima" => "(GMT -5:00) Eastern Time (US &amp; Canada), Bogota, Lima",
+    "-8|Pacific Time (US and Canada)" => "(GMT -8:00) Pacific Time (US &amp; Canada)",
+    "-7|Mountain Time (US and Canada)" => "(GMT -7:00) Mountain Time (US &amp; Canada)",
+    "-6|Central Time (US and Canada) Mexico City" => "(GMT -6:00) Central Time (US &amp; Canada), Mexico City",
+    "-5|Eastern Time (US and Canada) Bogota Lima" => "(GMT -5:00) Eastern Time (US &amp; Canada), Bogota, Lima",
     "-4|Atlantic Time (Canada)-Caracas-La Paz" => "(GMT -4:00) Atlantic Time (Canada), Caracas, La Paz",
     "-3.5|Newfoundland" => "(GMT -3:30) Newfoundland",
     "-3|Brazil-Buenos Aires-Georgetown" => "(GMT -3:00) Brazil, Buenos Aires, Georgetown",
@@ -234,6 +234,7 @@ function _advance_clock_clock_list() {
       $clock_min = array('path' => $module_path .'/images/clock_min.png', 'alt' => 'clock min', 'attributes' => array('class' => 'min',),);
       $clock_sec = array('path' => $module_path .'/images/clock_sec.png', 'alt' => 'clock sec', 'attributes' => array('class' => 'sec',),);
       $clock_face = array('path' => $module_path .'/images/clock_face.png', 'alt' => 'clock face', 'attributes' => array('class' => 'clock',),);
+      $clock_images['zone'] = str_replace("-", ",", $user_clocks[1]);
       $clock_images['id'] = drupal_html_class($user_clocks[1]); 
       $clock_images['hour'] = theme('image', $clock_hour);
       $clock_images['min'] = theme('image', $clock_min);

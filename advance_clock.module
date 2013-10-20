@@ -71,7 +71,7 @@ function advance_clock_menu() {
     'description' => t('Advance Clock configurations tools.'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('advance_clock_add_clock_form'),
-    'access arguments' => array('access funky button'),
+    'access arguments' => array('set advance clock'),
     'type' => MENU_LOCAL_TASK,
   );
 
@@ -129,12 +129,14 @@ function advance_clock_add_clock_form_submit($form, &$form_state) {
 function _advance_clock_get_user_clocks() {
   global $user;
   $advance_user_clock = array();
-  $query_advance_clock_list = db_select('advance_clock', 'ac');
-  $query_advance_clock_list->fields('ac', array('clock_zone'));
-  $query_advance_clock_list->condition('ac.uid', $user->uid, '=');
-  $advance_clock_result = $query_advance_clock_list->execute()->fetchAll();
-  if (count($advance_clock_result)) {
-    $advance_user_clock = explode(',', $advance_clock_result[0]->clock_zone);
+  if ($user->uid != 0) {
+    $query_advance_clock_list = db_select('advance_clock', 'ac');
+    $query_advance_clock_list->fields('ac', array('clock_zone'));
+    $query_advance_clock_list->condition('ac.uid', $user->uid, '=');
+    $advance_clock_result = $query_advance_clock_list->execute()->fetchAll();
+    if (count($advance_clock_result)) {
+      $advance_user_clock = explode(',', $advance_clock_result[0]->clock_zone);
+    }
   }
   return $advance_user_clock;
 }
@@ -205,30 +207,33 @@ function _advance_clock_clock_list() {
   $module_path = drupal_get_path('module', 'advance_clock');
   $users_clocks = _advance_clock_get_user_clocks();
   $js_elements = '';
+  $output = 'clock not set';
   $clock_images = array();
   drupal_add_css('http://www.jqueryscript.net/css/jquerysctipttop.css', 'external');
   drupal_add_js('http://code.jquery.com/jquery-latest.min.js', 'external');
   drupal_add_js($module_path . '/js/jClocksGMT.js');
   drupal_add_js($module_path . '/js/jquery.rotate.js');
   drupal_add_css($module_path . '/css/jClocksGMT.css');
-  foreach ($users_clocks as $zone) {
-    $user_clocks = explode('|', $zone);
-    $js_elements .= "$('#" . drupal_html_class($user_clocks[1]) . "').jClocksGMT({offset: '" . $user_clocks[0] . "', hour24: true});";
-    $clock_hour = array('path' => $module_path .'/images/clock_hour.png', 'alt' => 'clock hour', 'attributes' => array('class' => 'hour',),);
-    $clock_min = array('path' => $module_path .'/images/clock_min.png', 'alt' => 'clock min', 'attributes' => array('class' => 'min',),);
-    $clock_sec = array('path' => $module_path .'/images/clock_sec.png', 'alt' => 'clock sec', 'attributes' => array('class' => 'sec',),);
-    $clock_face = array('path' => $module_path .'/images/clock_face.png', 'alt' => 'clock face', 'attributes' => array('class' => 'clock',),);
-    $clock_images['id'] = drupal_html_class($user_clocks[1]); 
-    $clock_images['hour'] = theme('image', $clock_hour);
-    $clock_images['min'] = theme('image', $clock_min);
-    $clock_images['sec'] = theme('image', $clock_sec);
-    $clock_images['clock'] = theme('image', $clock_face);
-    $list[] = theme('advance_clock', array('images' => $clock_images));
+  if (count($users_clocks)) {
+    foreach ($users_clocks as $zone) {
+      $user_clocks = explode('|', $zone);
+      $js_elements .= "$('#" . drupal_html_class($user_clocks[1]) . "').jClocksGMT({offset: '" . $user_clocks[0] . "', hour24: true});";
+      $clock_hour = array('path' => $module_path .'/images/clock_hour.png', 'alt' => 'clock hour', 'attributes' => array('class' => 'hour',),);
+      $clock_min = array('path' => $module_path .'/images/clock_min.png', 'alt' => 'clock min', 'attributes' => array('class' => 'min',),);
+      $clock_sec = array('path' => $module_path .'/images/clock_sec.png', 'alt' => 'clock sec', 'attributes' => array('class' => 'sec',),);
+      $clock_face = array('path' => $module_path .'/images/clock_face.png', 'alt' => 'clock face', 'attributes' => array('class' => 'clock',),);
+      $clock_images['id'] = drupal_html_class($user_clocks[1]); 
+      $clock_images['hour'] = theme('image', $clock_hour);
+      $clock_images['min'] = theme('image', $clock_min);
+      $clock_images['sec'] = theme('image', $clock_sec);
+      $clock_images['clock'] = theme('image', $clock_face);
+      $list[] = theme('advance_clock', array('images' => $clock_images));
+    }
+    $output = '<div class="user-clocks">'; 
+    $output .= theme('item_list', array('items' => $list, 'attributes' => array('class' => 'clocks-list')));
+    $output .= '</div>';
+    drupal_add_js("$(document).ready(function(){" . $js_elements . "});", 'inline'); 
   }
-  $output = '<div class="user-clocks">'; 
-  $output .= theme('item_list', array('items' => $list, 'attributes' => array('class' => 'clocks-list')));
-  $output .= '</div>';
-  drupal_add_js("$(document).ready(function(){" . $js_elements . "});", 'inline'); 
   return $output;
 }
 /**

@@ -107,7 +107,19 @@ function advance_clock_add_clock_form($form) {
     '#type' => 'submit',
     '#value' => 'Save',
   );
+  $form['#validate'][] = 'advance_clock_add_clock_form_validate';
   return $form;
+}
+
+/**
+ * Form validation handler for hook_validate().
+ */
+function advance_clock_add_clock_form_validate($form, &$form_state) {
+  //Number of counts for user
+  $user_clocks = count(array_filter($form_state['values']['clock_zone']));
+  if ($user_clocks > variable_get('advance_clock_count')) {
+    form_set_error('clock_zone', t('Only @clock clock\'s allowed.', array('@clock' => variable_get('advance_clock_count'))));
+  }
 }
 
 function advance_clock_add_clock_form_submit($form, &$form_state) {
@@ -207,7 +219,7 @@ function _advance_clock_clock_list() {
   $module_path = drupal_get_path('module', 'advance_clock');
   $users_clocks = _advance_clock_get_user_clocks();
   $js_elements = '';
-  $output = 'clock not set';
+  $output = '';
   $clock_images = array();
   drupal_add_css('http://www.jqueryscript.net/css/jquerysctipttop.css', 'external');
   drupal_add_js('http://code.jquery.com/jquery-latest.min.js', 'external');
@@ -217,7 +229,7 @@ function _advance_clock_clock_list() {
   if (count($users_clocks)) {
     foreach ($users_clocks as $zone) {
       $user_clocks = explode('|', $zone);
-      $js_elements .= "$('#" . drupal_html_class($user_clocks[1]) . "').jClocksGMT({offset: '" . $user_clocks[0] . "', hour24: true});";
+      $js_elements .= "$('#" . drupal_html_class($user_clocks[1]) . "').jClocksGMT({offset: '" . $user_clocks[0] . "', hour24: false});";
       $clock_hour = array('path' => $module_path .'/images/clock_hour.png', 'alt' => 'clock hour', 'attributes' => array('class' => 'hour',),);
       $clock_min = array('path' => $module_path .'/images/clock_min.png', 'alt' => 'clock min', 'attributes' => array('class' => 'min',),);
       $clock_sec = array('path' => $module_path .'/images/clock_sec.png', 'alt' => 'clock sec', 'attributes' => array('class' => 'sec',),);

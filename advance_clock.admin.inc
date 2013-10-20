@@ -22,6 +22,8 @@ function advance_clock_admin_settings() {
       2 => t('2'),
       3 => t('3'),
       4 => t('4'),
+      5 => t('5'),
+      6 => t('6'),
     ),
     '#default_value' => variable_get('advance_clock_count'),
     '#description' => t('Allowed clock for user.'),

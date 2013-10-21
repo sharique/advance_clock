@@ -18,14 +18,14 @@ function advance_clock_admin_settings() {
   	'#type' => 'select',
     '#title' => t('Number of allowed clock per user'),
     '#options' => array(
-	    1 => t('1'),
+      1 => t('1'),
       2 => t('2'),
       3 => t('3'),
       4 => t('4'),
       5 => t('5'),
       6 => t('6'),
     ),
-    '#default_value' => variable_get('advance_clock_count'),
+    '#default_value' => variable_get('advance_clock_count', 3),
     '#description' => t('Allowed clock for user.'),
     '#required' => TRUE,
   );

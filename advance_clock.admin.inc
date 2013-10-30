@@ -42,7 +42,7 @@ function advance_clock_admin_settings() {
   $form['advance_clock_analog'] = array(
     '#type' => 'checkbox',
     '#title' => t('Analog Clock.'),
-    '#default_value' => variable_get('advance_clock_analog', FALSE),
+    '#default_value' => variable_get('advance_clock_analog', TRUE),
   );
   $form['#validate'][] = 'advance_clock_admin_settings_validate';
   return system_settings_form($form);

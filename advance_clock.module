@@ -156,7 +156,7 @@ function _advance_clock_get_user_clocks() {
 function _advance_clock_get_clocks() {
   return $timezoneTable = array(
     "-12|Eniwetok-Kwajalein" => "(GMT -12:00) Eniwetok, Kwajalein",
-    "-11| Midway Island-Samoa" => "(GMT -11:00) Midway Island, Samoa",
+    "-11|Midway Island-Samoa" => "(GMT -11:00) Midway Island, Samoa",
     "-10|Hawaii" => "(GMT -10:00) Hawaii",
     "-9|Alaska" => "(GMT -9:00) Alaska",
     "-8|Pacific Time (US and Canada)" => "(GMT -8:00) Pacific Time (US &amp; Canada)",
@@ -229,17 +229,19 @@ function _advance_clock_clock_list() {
   if (count($users_clocks)) {
     foreach ($users_clocks as $zone) {
       $user_clocks = explode('|', $zone);
-      $js_elements .= "$('#" . drupal_html_class($user_clocks[1]) . "').jClocksGMT({offset: '" . $user_clocks[0] . "', hour24: false});";
+      $js_elements .= "$('#" . drupal_html_class($user_clocks[1]) . "').jClocksGMT({offset: '" . $user_clocks[0] . "', hour24: " . variable_get('advance_clock_hour24', FALSE) . ", digital: " . variable_get('advance_clock_digital', FALSE) . "});";
       $clock_hour = array('path' => $module_path .'/images/clock_hour.png', 'alt' => 'clock hour', 'attributes' => array('class' => 'hour',),);
       $clock_min = array('path' => $module_path .'/images/clock_min.png', 'alt' => 'clock min', 'attributes' => array('class' => 'min',),);
       $clock_sec = array('path' => $module_path .'/images/clock_sec.png', 'alt' => 'clock sec', 'attributes' => array('class' => 'sec',),);
       $clock_face = array('path' => $module_path .'/images/clock_face.png', 'alt' => 'clock face', 'attributes' => array('class' => 'clock',),);
       $clock_images['zone'] = str_replace("-", ",", $user_clocks[1]);
-      $clock_images['id'] = drupal_html_class($user_clocks[1]); 
-      $clock_images['hour'] = theme('image', $clock_hour);
-      $clock_images['min'] = theme('image', $clock_min);
-      $clock_images['sec'] = theme('image', $clock_sec);
-      $clock_images['clock'] = theme('image', $clock_face);
+      $clock_images['id'] = drupal_html_class($user_clocks[1]);
+      if (variable_get('advance_clock_analog', FALSE)) { 
+        $clock_images['hour'] = theme('image', $clock_hour);
+        $clock_images['min'] = theme('image', $clock_min);
+        $clock_images['sec'] = theme('image', $clock_sec);
+        $clock_images['clock'] = theme('image', $clock_face);
+      }
       $list[] = theme('advance_clock', array('images' => $clock_images));
     }
     $output = '<div class="user-clocks">'; 

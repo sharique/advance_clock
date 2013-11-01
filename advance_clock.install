@@ -45,3 +45,10 @@ function advance_clock_schema() {
 function advance_clock_disable() {
   db_truncate('advance_clock');
 }
+
+/**
+* Converting clock_zone filed to text to store more clocks.
+*/
+function advance_clock_update_7001() {
+  db_query("ALTER TABLE advance_clock MODIFY COLUMN clock_zone text not null"); 
+}

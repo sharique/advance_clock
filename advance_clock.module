@@ -41,6 +41,15 @@ function advance_clock_permission() {
 }
 
 /**
+ * Implements hook_ctools_plugin_directory().
+ */
+function advance_clock_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && !empty($plugin)) {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
  * Implements hook_menu().
  */
 function advance_clock_menu() {
@@ -88,12 +97,20 @@ function advance_clock_theme($existing, $type, $theme, $path) {
         'variables' => array('images'=> NULL),
         'template' => '/template/advance-clock',
       ),
+      // Theme implemetation for digital clock (supports jquery verison 1.5).
+      'digital_clock' => array(
+        'variables' => array('images'=> NULL),
+        'template' => '/template/digital-clock',
+      ),
     );
     return $templates;
   }
 }
 
 function advance_clock_add_clock_form($form) {
+
+  //$zones = system_time_zones();
+
   // Text field
   $form['clock_zone'] = array(
     '#title' => t('Select Clock\'s Zones'),
@@ -153,39 +170,19 @@ function _advance_clock_get_user_clocks() {
   return $advance_user_clock;
 }
 
-function _advance_clock_get_clocks() {
-  return $timezoneTable = array(
-    "-12|Eniwetok-Kwajalein" => "(GMT -12:00) Eniwetok, Kwajalein",
-    "-11|Midway Island-Samoa" => "(GMT -11:00) Midway Island, Samoa",
-    "-10|Hawaii" => "(GMT -10:00) Hawaii",
-    "-9|Alaska" => "(GMT -9:00) Alaska",
-    "-8|Pacific Time (US and Canada)" => "(GMT -8:00) Pacific Time (US &amp; Canada)",
-    "-7|Mountain Time (US and Canada)" => "(GMT -7:00) Mountain Time (US &amp; Canada)",
-    "-6|Central Time (US and Canada) Mexico City" => "(GMT -6:00) Central Time (US &amp; Canada), Mexico City",
-    "-5|Eastern Time (US and Canada) Bogota Lima" => "(GMT -5:00) Eastern Time (US &amp; Canada), Bogota, Lima",
-    "-4|Atlantic Time (Canada)-Caracas-La Paz" => "(GMT -4:00) Atlantic Time (Canada), Caracas, La Paz",
-    "-3.5|Newfoundland" => "(GMT -3:30) Newfoundland",
-    "-3|Brazil-Buenos Aires-Georgetown" => "(GMT -3:00) Brazil, Buenos Aires, Georgetown",
-    "-2|Mid Atlantic" => "(GMT -2:00) Mid-Atlantic",
-    "-1|Azores-Cape Verde Islands" => "(GMT -1:00 hour) Azores, Cape Verde Islands",
-    "0|Western Europe Time-London-Lisbon-Casablanca" => "(GMT) Western Europe Time, London, Lisbon, Casablanca",
-    "1|Brussels-Copenhagen-Madrid-Paris" => "(GMT +1:00 hour) Brussels, Copenhagen, Madrid, Paris",
-    "2|Kaliningrad-South Africa" => "(GMT +2:00) Kaliningrad, South Africa",
-    "3|Baghdad-Riyadh-Moscow-St. Petersburg" => "(GMT +3:00) Baghdad, Riyadh, Moscow, St. Petersburg",
-    "3.5|Tehran" => "(GMT +3:30) Tehran",
-    "4|Abu Dhabi-Muscat-Baku-Tbilisi" => "(GMT +4:00) Abu Dhabi, Muscat, Baku, Tbilisi",
-    "4.5|Kabul" => "(GMT +4:30) Kabul",
-    "5|Ekaterinburg-Islamabad-Karachi-Tashkent" => "(GMT +5:00) Ekaterinburg, Islamabad, Karachi, Tashkent",
-    "5.5|Bombay-Calcutta-Madras-New Delhi" => "(GMT +5:30) Bombay, Calcutta, Madras, New Delhi",
-    "6|Almaty-Dhaka-Colombo" => "(GMT +6:00) Almaty, Dhaka, Colombo",
-    "7|Bangkok-Hanoi-Jakarta" => "(GMT +7:00) Bangkok, Hanoi, Jakarta",
-    "8|Beijing-Perth-Singapore-Hong Kong" => "(GMT +8:00) Beijing, Perth, Singapore, Hong Kong",
-    "9|Tokyo-Seoul-Osaka-Sapporo-Yakutsk" => "(GMT +9:00) Tokyo, Seoul, Osaka, Sapporo, Yakutsk",
-    "9.5|Adelaide-Darwin" => "(GMT +9:30) Adelaide, Darwin",
-    "10|Eastern Australia-Guam-Vladivostok" => "(GMT +10:00) Eastern Australia, Guam, Vladivostok",
-    "11|Magadan-Solomon Islands-New Caledonia" => "(GMT +11:00) Magadan, Solomon Islands, New Caledonia",
-    "12|Auckland-Wellington-Fiji-Kamchatka" => "(GMT +12:00) Auckland, Wellington, Fiji, Kamchatka"
-  );
+function _advance_clock_get_clocks($blank = NULL) {
+  $zonelist = timezone_identifiers_list();
+  $zones = $blank ? array('' => t('- None selected -')) : array();
+  foreach ($zonelist as $zone) {
+    // Because many time zones exist in PHP only for backward compatibility
+    // reasons and should not be used, the list is filtered by a regular
+    // expression.
+  if (preg_match ('!^((Africa|America|Antarctica|Arctic|Asia|Atlantic|Australia|Europe|Indian|Pacific)/|UTC$)!', $zone)) {
+      $timezoneTable[format_date(REQUEST_TIME, 'custom', ' O', $zone)/100 . '|' . $zone] = t('(GMT@date) @zone,', array('@zone' => t(str_replace ('_', ' ', $zone)), '@date' => format_date(REQUEST_TIME, 'custom', ' O', $zone), '@d' => format_date(REQUEST_TIME, 'custom', ' O', $zone)/100));
+    }
+  }
+  asort($timezoneTable);
+  return $timezoneTable;
 }
 
 /**
@@ -216,47 +213,93 @@ function advance_clock_block_view($delta = '') {
 }
 
 function _advance_clock_clock_list() {
-  $module_path = drupal_get_path('module', 'advance_clock');
-  $users_clocks = _advance_clock_get_user_clocks();
+  $items = '';
   $js_elements = '';
-  $output = '';
-  $clock_images = array();
-  drupal_add_css('http://www.jqueryscript.net/css/jquerysctipttop.css', 'external');
-  drupal_add_js('http://code.jquery.com/jquery-latest.min.js', 'external');
-  drupal_add_js($module_path . '/js/jClocksGMT.js');
-  drupal_add_js($module_path . '/js/jquery.rotate.js');
-  drupal_add_css($module_path . '/css/jClocksGMT.css');
-  if (count($users_clocks)) {
-    foreach ($users_clocks as $zone) {
-      $user_clocks = explode('|', $zone);
-      $js_elements .= "$('#" . drupal_html_class($user_clocks[1]) . "').jClocksGMT({offset: '" . $user_clocks[0] . "', hour24: " . variable_get('advance_clock_hour24', FALSE) . ", digital: " . variable_get('advance_clock_digital', FALSE) . "});";
-      $clock_hour = array('path' => $module_path .'/images/clock_hour.png', 'alt' => 'clock hour', 'attributes' => array('class' => 'hour',),);
-      $clock_min = array('path' => $module_path .'/images/clock_min.png', 'alt' => 'clock min', 'attributes' => array('class' => 'min',),);
-      $clock_sec = array('path' => $module_path .'/images/clock_sec.png', 'alt' => 'clock sec', 'attributes' => array('class' => 'sec',),);
-      $clock_face = array('path' => $module_path .'/images/clock_face.png', 'alt' => 'clock face', 'attributes' => array('class' => 'clock',),);
-      $clock_images['zone'] = str_replace("-", ",", $user_clocks[1]);
-      $clock_images['id'] = drupal_html_class($user_clocks[1]);
-      if (variable_get('advance_clock_analog', FALSE)) { 
-        $clock_images['hour'] = theme('image', $clock_hour);
-        $clock_images['min'] = theme('image', $clock_min);
-        $clock_images['sec'] = theme('image', $clock_sec);
-        $clock_images['clock'] = theme('image', $clock_face);
+  $users_clocks = _advance_clock_get_user_clocks();
+  $module_path = drupal_get_path('module', 'advance_clock');
+  $allowed_clock_count = variable_get('advance_clock_count');
+  $show_date = variable_get('advance_clock_show_date');
+  $configured_clocks = count($users_clocks);
+  // @TODO: Show first n clocks for a selected value.
+  if ($allowed_clock_count < $configured_clocks) {
+    drupal_set_message('Please configure clocks', 'warning');
+    $configured_clocks = $allowed_clock_count;
+  }
+
+
+  // Digital Clock (JQuery 1.5 and Abv).
+  // @TODO: Add Language switcher.
+  if (variable_get('advance_clock_simple_advance') == FALSE) {
+    $output = '';
+    $clocks = '';
+    $module_path = drupal_get_path('module', 'advance_clock');
+    $clock_type = variable_get('advance_clock_hour24');
+    drupal_add_js($module_path . '/js/digitalClock.js');
+    drupal_add_css($module_path . '/css/digital-clock.css');
+    if ($configured_clocks != 0) {
+      // Gets one single clock value.
+      foreach ($users_clocks as $key => $zone) {
+        $user_clock = explode('|', $zone);
+
+        // JS.
+        $varstoadd['clock_offset'][$key] = $user_clock[0];
+
+        // Theme.
+        $clock['clock_id'] = $key;
+        $clock['format'] = $clock_type;
+        $clock['location'] = $user_clock[1];
+        $clock['show_date'] = $show_date;
+        
+        // Overrideable theme layer for single clock.
+        $clocks .= theme('digital_clock', array('clock' => $clock));
       }
-      $list[] = theme('advance_clock', array('images' => $clock_images));
+
+      // JS.
+      $varstoadd['count'] = $key;
+      $varstoadd['clock_type'] = $clock_type;
+      drupal_add_js($varstoadd, 'setting');
+
+      // Theme Wrapper.
+      $output = '<div class="user-clocks">';
+      $output .= $clocks;
+      $output .= '</div>';
+      
     }
-    $output = '<div class="user-clocks">'; 
-    $output .= theme('item_list', array('items' => $list, 'attributes' => array('class' => 'clocks-list')));
-    $output .= '</div>';
-    drupal_add_js("$(document).ready(function(){" . $js_elements . "});", 'inline'); 
+  }
+
+  // Code for analog/digital advance clock (using JS 1.10)
+  elseif (variable_get('advance_clock_simple_advance') == TRUE) {
+    $js_elements = '';
+    $output = '';
+    $clock_images = array();
+    drupal_add_css('http://www.jqueryscript.net/css/jquerysctipttop.css', 'external');
+    drupal_add_js('http://code.jquery.com/jquery-latest.min.js', 'external');
+    drupal_add_js($module_path . '/js/jClocksGMT.js');
+    drupal_add_js($module_path . '/js/jquery.rotate.js');
+    drupal_add_css($module_path . '/css/jClocksGMT.css');
+    if (count($users_clocks)) {
+      foreach ($users_clocks as $zone) {
+        $user_clocks = explode('|', $zone);
+        $js_elements .= "$('#" . drupal_html_class($user_clocks[1]) . "').jClocksGMT({offset: '" . $user_clocks[0] . "', hour24: " . variable_get('advance_clock_hour24', FALSE) . ", digital: " . variable_get('advance_clock_digital', FALSE) . "});";
+        $clock_hour = array('path' => $module_path .'/images/clock_hour.png', 'alt' => 'clock hour', 'attributes' => array('class' => 'hour',),);
+        $clock_min = array('path' => $module_path .'/images/clock_min.png', 'alt' => 'clock min', 'attributes' => array('class' => 'min',),);
+        $clock_sec = array('path' => $module_path .'/images/clock_sec.png', 'alt' => 'clock sec', 'attributes' => array('class' => 'sec',),);
+        $clock_face = array('path' => $module_path .'/images/clock_face.png', 'alt' => 'clock face', 'attributes' => array('class' => 'clock',),);
+        $clock_images['zone'] = str_replace("-", ",", $user_clocks[1]);
+        $clock_images['id'] = drupal_html_class($user_clocks[1]);
+        if (variable_get('advance_clock_analog', FALSE)) { 
+          $clock_images['hour'] = theme('image', $clock_hour);
+          $clock_images['min'] = theme('image', $clock_min);
+          $clock_images['sec'] = theme('image', $clock_sec);
+          $clock_images['clock'] = theme('image', $clock_face);
+        }
+        $list[] = theme('advance_clock', array('images' => $clock_images));
+      }
+      $output = '<div class="user-clocks">'; 
+      $output .= theme('item_list', array('items' => $list, 'attributes' => array('class' => 'clocks-list')));
+      $output .= '</div>';
+      drupal_add_js("$(document).ready(function(){" . $js_elements . "});", 'inline');
+    }
   }
   return $output;
 }
-/**
- * Implements hook_ctools_plugin_directory().
- */
-function advance_clock_ctools_plugin_directory($module, $plugin) {
-  if ($module == 'ctools' && !empty($plugin)) {
-    return 'plugins/' . $plugin;
-  }
-}
-

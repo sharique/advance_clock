@@ -29,20 +29,68 @@ function advance_clock_admin_settings() {
     '#description' => t('Allowed clock for user.'),
     '#required' => TRUE,
   );
+
   $form['advance_clock_hour24'] = array(
     '#type' => 'checkbox',
     '#title' => t('24 hr\'s Clock.'),
     '#default_value' => variable_get('advance_clock_hour24', FALSE),
   );
+
+  $form['advance_clock_show_date'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show Date'),
+    '#default_value' => variable_get('advance_clock_show_date', FALSE),
+  );
+
+   $form['advance_clock_simple_advance'] = array(
+    '#type' => 'radios',
+    '#title' => t('Select your preference'),
+    '#options' => array(
+      0 => t('Advance Digital Clock (jQuery 1.5 or above (Stable).)'),
+      1 => t('Advance Digital/Analog Clock (jQuery 1.9 or above)'),
+    ),
+    '#default_value' => variable_get('advance_clock_simple_advance', FALSE),
+    '#description' => t('Set this to <em>Yes</em> if you would like this category to be selected by default.'),
+  );
+
+  // jQuery 1.5
+  $form['advance_clock_digital_jq15'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Simple Digital Clock.'),
+    '#description' => t('Uses  jQuery 1.5 or above (Stable).'),
+    '#default_value' => variable_get('advance_clock_digital_jq15', FALSE),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="advance_clock_simple_advance"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
+
+  // @TODO: Disable these options if "advance_clock_digital_jq15" is used.
+
   $form['advance_clock_digital'] = array(
     '#type' => 'checkbox',
     '#title' => t('Digital Clock.'),
+    '#description' => t('Uses jQuery 1.10.2.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="advance_clock_simple_advance"]' => array('checked' => FALSE),
+      ),
+    ),
     '#default_value' => variable_get('advance_clock_digital', FALSE),
   );
+
   $form['advance_clock_analog'] = array(
     '#type' => 'checkbox',
     '#title' => t('Analog Clock.'),
-    '#default_value' => variable_get('advance_clock_analog', TRUE),
+    '#default_value' => variable_get('advance_clock_analog', FALSE),
+    '#description' => t('Uses jQuery 1.10.2.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="advance_clock_simple_advance"]' => array('checked' => FALSE),
+      ),
+    ),
   );
   $form['#validate'][] = 'advance_clock_admin_settings_validate';
   return system_settings_form($form);

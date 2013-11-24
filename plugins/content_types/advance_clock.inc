@@ -15,7 +15,7 @@ $plugin = array(
   'render callback' => 'advance_clock_content_type_render',
   'edit form' => 'advance_clock_content_type_edit_form',
   'icon' => 'icon_example.png',
-  'category' => array(t('Sentizens Landing'), -9),
+  'category' => array(t('Advance Clocks'), -9),
 );
 
 /**
@@ -35,7 +35,8 @@ function advance_clock_content_type_render($subtype, $conf, $args, $context) {
 
   // Modal window - Advance clock configuration.
   $link_out =  l('Configure Clocks', 'user/'. $user->uid . '/add-clock');
-  if ($conf['advance_clock_use_modal']) {
+
+  if ($conf['advance_clock_use_modal'] == 1) {
     $mini_out = drupal_render(drupal_get_form('advance_clock_add_clock_form'));
     drupal_add_library('system', 'ui.dialog');
     drupal_add_js(drupal_get_path('module', 'advance_clock') . '/js/minipanel_dialog_link.js');
@@ -56,12 +57,12 @@ function advance_clock_content_type_render($subtype, $conf, $args, $context) {
  * Implements hook_form().
  */
 function advance_clock_content_type_edit_form($form, &$form_state) {
-
+  $conf = $form_state['conf'];
   $form['advance_clock_use_modal'] = array(
     '#title' => t('Display Configure clock in modal window'),
     '#type' => 'checkbox',
     '#description' => t('Use Modal Window to display location'),
-    '#default_value' => !empty($conf['advance_clock_use_modal']) ? $conf['advance_clock_use_modal'] : '',
+    '#default_value' => !empty($conf['advance_clock_use_modal']) ? $conf['advance_clock_use_modal'] : '0',
   );
 
   return $form;
@@ -72,5 +73,4 @@ function advance_clock_content_type_edit_form($form, &$form_state) {
  */
 function advance_clock_content_type_edit_form_submit(&$form, &$form_state) {
     $form_state['conf'] = $form_state['values'];
-
 }

@@ -55,7 +55,6 @@
             currentHoursAP = (currentHoursAP == 0) ? 12 : currentHoursAP;
             // Add a leading zero to the hours value
           $("#hours-"+i).html(( currentHoursAP < 10 ? "0" : "" ) + currentHoursAP);
-          //$("#sec"+i).append('<li>' + timeOfDay + '</li>');
           $("#format-"+i).html(timeOfDay);
 
           }

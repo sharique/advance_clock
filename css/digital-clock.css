@@ -1,13 +1,12 @@
 .user-clocks {
 width: 100%;
 float: left;
+margin-bottom: 8px;
 }
 
 .clock {
-	border: 2px solid #48A9E4;
-	margin: 5px;
-	padding: 5px;
-	width: 32%;
+	border: 1px solid #0779BF;
+	width: 31.7%;
 	float: left;
 }
 
@@ -15,16 +14,22 @@ float: left;
 	text-align: center;
 }
 
-.clock .advance-clock-location { 
+.clock .advance-clock-location {
+	border-bottom: 1px solid #0779BF;
 	text-align: center;
+	background-color: #48A9E4;
+	font-style: italic;
+	font-weight: bold;
+	color: #FFFFFF;
 }
 
 .clock ul { 
 	list-style:none;
-	padding: 0px;
-	margin: 0px;
+	padding: 0px !important;
+	margin: 0px !important;
 	text-align: center;
 	font-weight: bold;
+	color: #0779BF;
 }
 
 .clock ul li { 

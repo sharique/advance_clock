@@ -46,6 +46,8 @@ function advance_clock_disable() {
   db_truncate('advance_clock');
 }
 
+// @TODO add hook_uninstall to clear advace variables from varibles table.
+
 /**
 * Converting clock_zone filed to text to store more clocks.
 */

@@ -30,10 +30,18 @@ function advance_clock_admin_settings() {
     '#required' => TRUE,
   );
 
+  $form['advance_clock_show_secs'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show Seconds'),
+    '#default_value' => variable_get('advance_clock_show_secs', TRUE),
+    '#description' => t('Show Seconds Count'),
+  );
+
   $form['advance_clock_hour24'] = array(
     '#type' => 'checkbox',
     '#title' => t('24 hr\'s Clock.'),
     '#default_value' => variable_get('advance_clock_hour24', FALSE),
+    '#description' => t('The Clock Type, Default is 12Hr Clock'),
   );
 
   $form['advance_clock_show_date'] = array(

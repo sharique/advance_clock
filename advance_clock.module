@@ -35,7 +35,7 @@ function advance_clock_permission() {
       'title' => t('Edit Advance Clock'),
     ),
     'configure advance clock' => array(
-      'title' => t('Edit Advance Clock'),
+      'title' => t('Configure Advance Clock'),
     ),    
   );
 }
@@ -219,6 +219,8 @@ function _advance_clock_clock_list() {
   $module_path = drupal_get_path('module', 'advance_clock');
   $allowed_clock_count = variable_get('advance_clock_count');
   $show_date = variable_get('advance_clock_show_date');
+  $show_secs = variable_get('advance_clock_show_secs');  
+  
   $configured_clocks = count($users_clocks);
   // @TODO: Show first n clocks for a selected value.
   if ($allowed_clock_count < $configured_clocks) {
@@ -229,6 +231,7 @@ function _advance_clock_clock_list() {
 
   // Digital Clock (JQuery 1.5 and Abv).
   // @TODO: Add Language switcher.
+  // @TODO: Date format made configurable.
   if (variable_get('advance_clock_simple_advance') == FALSE) {
     $output = '';
     $clocks = '';
@@ -249,6 +252,7 @@ function _advance_clock_clock_list() {
         $clock['format'] = $clock_type;
         $clock['location'] = $user_clock[1];
         $clock['show_date'] = $show_date;
+        $clock['show_secs'] = $show_secs;
         
         // Overrideable theme layer for single clock.
         $clocks .= theme('digital_clock', array('clock' => $clock));

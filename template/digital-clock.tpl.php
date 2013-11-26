@@ -8,8 +8,11 @@
  * @ingroup advance_clock > templates
  */
 ?>
-<?php $clock = $variables['clock']; ?>
-<?php $location = str_replace('_', ' ', $clock['location']); ?>
+<?php $clock = $variables['clock'];
+  //$search = array('/', '_');
+  $location = str_replace('_', ' ', $clock['location']); 
+  $location = str_replace('/', ' / ', $location); 
+?>
 <div class="container">
   <span class="clock-icon"></span>
   <div class="clock">
@@ -21,8 +24,10 @@
       <li class="hours" id="hours-<?php print $clock['clock_id']; ?>">
       <li id="point">:</li>  
       <li class="min" id="min-<?php print $clock['clock_id']; ?>">
-      <li id="point">:</li>  
-      <li class="sec" id="sec-<?php print $clock['clock_id']; ?>">
+      <?php if ($clock['show_secs'] == TRUE) : ?>        
+         <li id="point">:</li>
+         <li class="sec" id="sec-<?php print $clock['clock_id']; ?>">
+      <?php endif; ?>
       <?php if ($clock['format'] == 0) : ?>
          <li class="format" id="format-<?php print $clock['clock_id']; ?>">
       <?php endif; ?>

@@ -39,7 +39,6 @@ function advance_clock_content_type_render($subtype, $conf, $args, $context) {
   if ($conf['advance_clock_use_modal'] == 1) {
     $mini_out = drupal_render(drupal_get_form('advance_clock_add_clock_form'));
     drupal_add_library('system', 'ui.dialog');
-    drupal_add_js(drupal_get_path('module', 'advance_clock') . '/js/minipanel_dialog_link.js');
     $block->content .= "<div class='minipanel-dialog-wrapper'>";
     $block->content .= "<div class='minipanel-dialog-link-link'>" . $link_out . "</div>";
     $block->content .= "<div class='minipanel-dialog-link-mini' style='display:none; overflow:auto; height:640px;'>" . $mini_out . "</div>";

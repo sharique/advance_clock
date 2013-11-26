@@ -9,7 +9,6 @@
  */
 ?>
 <?php $clock = $variables['clock'];
-  //$search = array('/', '_');
   $location = str_replace('_', ' ', $clock['location']); 
   $location = str_replace('/', ' / ', $location); 
 ?>

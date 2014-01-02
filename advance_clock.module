@@ -203,10 +203,12 @@ function advance_clock_block_info() {
 function advance_clock_block_view($delta = '') {
   // This example is adapted from node.module.
   $block = array();
+  global $user;
   switch ($delta) {
     case 'advance_clock_user_clock':
       $block['subject'] = t('Clocks');
       $block['content'] = _advance_clock_clock_list();
+      $block['content'] .=  l('Configure Clocks', 'user/'. $user->uid . '/add-clock');
       break;
   }
   return $block;

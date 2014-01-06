@@ -222,6 +222,7 @@ function _advance_clock_clock_list() {
   $allowed_clock_count = variable_get('advance_clock_count');
   $show_date = variable_get('advance_clock_show_date');
   $show_secs = variable_get('advance_clock_show_secs');  
+  $show_city = variable_get('advance_clock_show_only_city');
   
   $configured_clocks = count($users_clocks);
   // @TODO: Show first n clocks for a selected value.
@@ -245,14 +246,24 @@ function _advance_clock_clock_list() {
       // Gets one single clock value.
       foreach ($users_clocks as $key => $zone) {
         $user_clock = explode('|', $zone);
-
+        $user_location = $user_clock[1];
+        //show only city name
+        if ($show_city == TRUE) {
+          $clock['city'] = explode('/', $user_location);
+          $city = array_reverse($clock['city']);
+          $city[0] = str_replace('_', ' ', $city[0]);
+          $location = $city[0];
+        } else {
+          $location = str_replace('_', ' ', $user_location);
+          $location = str_replace('/', ' / ', $location);
+        }
         // JS.
         $varstoadd['clock_offset'][$key] = $user_clock[0];
 
         // Theme.
         $clock['clock_id'] = $key;
         $clock['format'] = $clock_type;
-        $clock['location'] = $user_clock[1];
+        $clock['location'] = $location;
         $clock['show_date'] = $show_date;
         $clock['show_secs'] = $show_secs;
         

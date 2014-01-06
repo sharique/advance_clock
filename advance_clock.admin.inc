@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * The node_statistics.admin.module
@@ -12,6 +11,7 @@
  *
  * @ingroup forms
  */
+
 function advance_clock_admin_settings() {
   $form = array();
   $form['advance_clock_count'] = array(
@@ -34,7 +34,14 @@ function advance_clock_admin_settings() {
     '#type' => 'checkbox',
     '#title' => t('Show Seconds'),
     '#default_value' => variable_get('advance_clock_show_secs', TRUE),
-    '#description' => t('Show Seconds Count'),
+    '#description' => t('Show Seconds Counter with simple digital clock'),
+  );
+
+  $form['advance_clock_show_only_city'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show Only City Name'),
+    '#default_value' => variable_get('advance_clock_show_only_city', FALSE),
+    '#description' => t('Show only City Name in clock\'s title. NOTE: Works only with Simple Digital Clock'),
   );
 
   $form['advance_clock_hour24'] = array(
@@ -50,7 +57,7 @@ function advance_clock_admin_settings() {
     '#default_value' => variable_get('advance_clock_show_date', FALSE),
   );
 
-   $form['advance_clock_simple_advance'] = array(
+  $form['advance_clock_simple_advance'] = array(
     '#type' => 'radios',
     '#title' => t('Select your preference'),
     '#options' => array(
@@ -74,9 +81,7 @@ function advance_clock_admin_settings() {
     ),
   );
 
-
   // @TODO: Disable these options if "advance_clock_digital_jq15" is used.
-
   $form['advance_clock_digital'] = array(
     '#type' => 'checkbox',
     '#title' => t('Digital Clock.'),
@@ -93,7 +98,7 @@ function advance_clock_admin_settings() {
     '#type' => 'checkbox',
     '#title' => t('Analog Clock.'),
     '#default_value' => variable_get('advance_clock_analog', FALSE),
-    '#description' => t('Uses jQuery 1.10.2.'),
+    '#description' => t('Uses jQuery 1.10.2. (Not Reommended!)'),
     '#states' => array(
       'visible' => array(
         ':input[name="advance_clock_simple_advance"]' => array('checked' => FALSE),

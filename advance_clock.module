@@ -1,9 +1,9 @@
 <?php
+
 /**
  * @file
  * Enables site-wide keyword searching.
  */
-
 /**
  * This module holds functions useful for rooting the nodes while search.
  * It works parallel to the search,
@@ -23,6 +23,7 @@ function advance_clock_help($path) {
       );
   }
 }
+
 /**
  * Implements hook_permission().
  */
@@ -36,7 +37,7 @@ function advance_clock_permission() {
     ),
     'configure advance clock' => array(
       'title' => t('Configure Advance Clock'),
-    ),    
+    ),
   );
 }
 
@@ -91,15 +92,15 @@ function advance_clock_menu() {
  * Implementation of hook_theme()
  */
 function advance_clock_theme($existing, $type, $theme, $path) {
-  if($type == 'module'){
+  if ($type == 'module') {
     $templates = array(
       'advance_clock' => array(
-        'variables' => array('images'=> NULL),
+        'variables' => array('images' => NULL),
         'template' => '/template/advance-clock',
       ),
       // Theme implemetation for digital clock (supports jquery verison 1.5).
       'digital_clock' => array(
-        'variables' => array('images'=> NULL),
+        'variables' => array('images' => NULL),
         'template' => '/template/digital-clock',
       ),
     );
@@ -110,7 +111,6 @@ function advance_clock_theme($existing, $type, $theme, $path) {
 function advance_clock_add_clock_form($form) {
 
   //$zones = system_time_zones();
-
   // Text field
   $form['clock_zone'] = array(
     '#title' => t('Select Clock\'s Zones'),
@@ -145,13 +145,13 @@ function advance_clock_add_clock_form_submit($form, &$form_state) {
   $zones = implode(',', array_filter($form_state['values']['clock_zone']));
   if (count($user_clocks)) {
     $num_updated = db_update('advance_clock')
-      ->fields(array('clock_zone' => $zones))
-      ->condition('uid', $user->uid, '=')
-      ->execute();
+        ->fields(array('clock_zone' => $zones))
+        ->condition('uid', $user->uid, '=')
+        ->execute();
   }
   else {
     $query_advance_clock = db_insert('advance_clock')
-      ->fields(array('uid' => $user->uid, 'clock_zone' => $zones, 'timestamp' => time()))->execute();
+            ->fields(array('uid' => $user->uid, 'clock_zone' => $zones, 'timestamp' => time()))->execute();
   }
 }
 
@@ -177,8 +177,8 @@ function _advance_clock_get_clocks($blank = NULL) {
     // Because many time zones exist in PHP only for backward compatibility
     // reasons and should not be used, the list is filtered by a regular
     // expression.
-  if (preg_match ('!^((Africa|America|Antarctica|Arctic|Asia|Atlantic|Australia|Europe|Indian|Pacific)/|UTC$)!', $zone)) {
-      $timezoneTable[format_date(REQUEST_TIME, 'custom', ' O', $zone)/100 . '|' . $zone] = t('(GMT@date) @zone,', array('@zone' => t(str_replace ('_', ' ', $zone)), '@date' => format_date(REQUEST_TIME, 'custom', ' O', $zone), '@d' => format_date(REQUEST_TIME, 'custom', ' O', $zone)/100));
+    if (preg_match('!^((Africa|America|Antarctica|Arctic|Asia|Atlantic|Australia|Europe|Indian|Pacific)/|UTC$)!', $zone)) {
+      $timezoneTable[format_date(REQUEST_TIME, 'custom', ' O', $zone) / 100 . '|' . $zone] = t('(GMT@date) @zone,', array('@zone' => t(str_replace('_', ' ', $zone)), '@date' => format_date(REQUEST_TIME, 'custom', ' O', $zone), '@d' => format_date(REQUEST_TIME, 'custom', ' O', $zone) / 100));
     }
   }
   asort($timezoneTable);
@@ -208,7 +208,7 @@ function advance_clock_block_view($delta = '') {
     case 'advance_clock_user_clock':
       $block['subject'] = t('Clocks');
       $block['content'] = _advance_clock_clock_list();
-      $block['content'] .=  l('Configure Clocks', 'user/'. $user->uid . '/add-clock');
+      $block['content'] .= l('Configure Clocks', 'user/' . $user->uid . '/add-clock');
       break;
   }
   return $block;
@@ -221,9 +221,9 @@ function _advance_clock_clock_list() {
   $module_path = drupal_get_path('module', 'advance_clock');
   $allowed_clock_count = variable_get('advance_clock_count');
   $show_date = variable_get('advance_clock_show_date');
-  $show_secs = variable_get('advance_clock_show_secs');  
+  $show_secs = variable_get('advance_clock_show_secs');
   $show_city = variable_get('advance_clock_show_only_city');
-  
+
   $configured_clocks = count($users_clocks);
   // @TODO: Show first n clocks for a selected value.
   if ($allowed_clock_count < $configured_clocks) {
@@ -253,7 +253,8 @@ function _advance_clock_clock_list() {
           $city = array_reverse($clock['city']);
           $city[0] = str_replace('_', ' ', $city[0]);
           $location = $city[0];
-        } else {
+        }
+        else {
           $location = str_replace('_', ' ', $user_location);
           $location = str_replace('/', ' / ', $location);
         }
@@ -266,7 +267,7 @@ function _advance_clock_clock_list() {
         $clock['location'] = $location;
         $clock['show_date'] = $show_date;
         $clock['show_secs'] = $show_secs;
-        
+
         // Overrideable theme layer for single clock.
         $clocks .= theme('digital_clock', array('clock' => $clock));
       }
@@ -280,7 +281,6 @@ function _advance_clock_clock_list() {
       $output = '<div class="user-clocks">';
       $output .= $clocks;
       $output .= '</div>';
-      
     }
   }
 
@@ -298,13 +298,13 @@ function _advance_clock_clock_list() {
       foreach ($users_clocks as $zone) {
         $user_clocks = explode('|', $zone);
         $js_elements .= "$('#" . drupal_html_class($user_clocks[1]) . "').jClocksGMT({offset: '" . $user_clocks[0] . "', hour24: " . variable_get('advance_clock_hour24', FALSE) . ", digital: " . variable_get('advance_clock_digital', FALSE) . "});";
-        $clock_hour = array('path' => $module_path .'/images/clock_hour.png', 'alt' => 'clock hour', 'attributes' => array('class' => 'hour',),);
-        $clock_min = array('path' => $module_path .'/images/clock_min.png', 'alt' => 'clock min', 'attributes' => array('class' => 'min',),);
-        $clock_sec = array('path' => $module_path .'/images/clock_sec.png', 'alt' => 'clock sec', 'attributes' => array('class' => 'sec',),);
-        $clock_face = array('path' => $module_path .'/images/clock_face.png', 'alt' => 'clock face', 'attributes' => array('class' => 'clock',),);
+        $clock_hour = array('path' => $module_path . '/images/clock_hour.png', 'alt' => 'clock hour', 'attributes' => array('class' => 'hour',),);
+        $clock_min = array('path' => $module_path . '/images/clock_min.png', 'alt' => 'clock min', 'attributes' => array('class' => 'min',),);
+        $clock_sec = array('path' => $module_path . '/images/clock_sec.png', 'alt' => 'clock sec', 'attributes' => array('class' => 'sec',),);
+        $clock_face = array('path' => $module_path . '/images/clock_face.png', 'alt' => 'clock face', 'attributes' => array('class' => 'clock',),);
         $clock_images['zone'] = str_replace("-", ",", $user_clocks[1]);
         $clock_images['id'] = drupal_html_class($user_clocks[1]);
-        if (variable_get('advance_clock_analog', FALSE)) { 
+        if (variable_get('advance_clock_analog', FALSE)) {
           $clock_images['hour'] = theme('image', $clock_hour);
           $clock_images['min'] = theme('image', $clock_min);
           $clock_images['sec'] = theme('image', $clock_sec);
@@ -312,7 +312,7 @@ function _advance_clock_clock_list() {
         }
         $list[] = theme('advance_clock', array('images' => $clock_images));
       }
-      $output = '<div class="user-clocks">'; 
+      $output = '<div class="user-clocks">';
       $output .= theme('item_list', array('items' => $list, 'attributes' => array('class' => 'clocks-list')));
       $output .= '</div>';
       drupal_add_js("$(document).ready(function(){" . $js_elements . "});", 'inline');

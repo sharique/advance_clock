@@ -110,7 +110,6 @@ function advance_clock_theme($existing, $type, $theme, $path) {
 
 function advance_clock_add_clock_form($form) {
 
-  //$zones = system_time_zones();
   // Text field
   $form['clock_zone'] = array(
     '#title' => t('Select Clock\'s Zones'),
@@ -275,7 +274,7 @@ function _advance_clock_clock_list() {
       // JS.
       $varstoadd['count'] = $key;
       $varstoadd['clock_type'] = $clock_type;
-      drupal_add_js($varstoadd, 'setting');
+      drupal_add_js(array('advance_clock' => $varstoadd), 'setting');
 
       // Theme Wrapper.
       $output = '<div class="user-clocks">';

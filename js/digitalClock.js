@@ -3,13 +3,13 @@
   Drupal.behaviors.digitalClock = {
     attach: function(context, settings) {
       // Used as key in each function.
-      if ( !Drupal.settings.clock_offset ) {
+      if ( !Drupal.settings.advance_clock) {
         return;
       }
-      var i = Drupal.settings.count;
+      var i = Drupal.settings.advance_clock.count;
       // Key - Value pair ("clock number" - "GMT Value").
-      var clock_offset = Drupal.settings.clock_offset;
-      var clock_type = Drupal.settings.clock_type;
+      var clock_offset = Drupal.settings.advance_clock.clock_offset;
+      var clock_type = Drupal.settings.advance_clock.clock_type;
 
       // Create two variable with the names of the months and days in an array.
       var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];

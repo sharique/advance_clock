@@ -46,11 +46,23 @@ function advance_clock_disable() {
   db_truncate('advance_clock');
 }
 
-// @TODO add hook_uninstall to clear advace variables from varibles table.
-
 /**
 * Converting clock_zone filed to text to store more clocks.
 */
 function advance_clock_update_7001() {
   db_query("ALTER TABLE advance_clock MODIFY COLUMN clock_zone text not null"); 
+}
+
+/**
+ * Implements of hook_uninstall().
+ * Clears advance clock variables from variable table and
+ * flushes the cache to remove these variables from the global $conf array.
+ */
+function advance_clock_uninstall() {
+  $var_delete = db_delete('variable')
+    ->condition('name', db_like('advance_clock_') . '%', 'LIKE')
+    ->execute();
+
+  // remove deleted ones from global $conf array
+  cache_clear_all('variables', 'cache_bootstrap');
 }

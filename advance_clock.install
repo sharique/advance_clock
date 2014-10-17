@@ -50,17 +50,19 @@ function advance_clock_disable() {
 * Converting clock_zone filed to text to store more clocks.
 */
 function advance_clock_update_7001() {
-  db_query("ALTER TABLE advance_clock MODIFY COLUMN clock_zone text not null");
+  db_query("ALTER TABLE advance_clock MODIFY COLUMN clock_zone text not null"); 
 }
 
 /**
  * Implements of hook_uninstall().
- * Clear advance clock variables from system variable table.
+ * Clears advance clock variables from variable table and
+ * flushes the cache to remove these variables from the global $conf array.
  */
 function advance_clock_uninstall() {
   $var_delete = db_delete('variable')
-    ->condition('name', "advance_clock_%", "LIKE")
+    ->condition('name', db_like('advance_clock_') . '%', 'LIKE')
     ->execute();
 
-  cache_clear_all('variables', 'cache');
+  // remove deleted ones from global $conf array
+  cache_clear_all('variables', 'cache_bootstrap');
 }

@@ -1,7 +1,8 @@
 name = Advance Clock
 description = Provides a plugin displaying the current time.
 core = 7.x
-version = 7.x-1.x-dev
+version = 7.x-2.x-dev
 package = Date/Time
 project = "advance_clock"
-scripts[] = /js/minipanel_dialog_link.js
+dependencies[] = moment
+dependencies[] = jquery_update

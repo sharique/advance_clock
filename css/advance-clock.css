@@ -1,0 +1,47 @@
+/** Digital clock theming **/
+li.digital-clock, li.analog-clock {
+  list-style: none;
+  margin: 5px 0;
+  text-align: center;
+}
+
+li.digital-clock > .digits {
+  background-color: #dddddd;
+}
+
+li.digital-clock .city, li.analog-clock .city {
+  font-weight: bold;
+}
+
+/** Analog clock theming **/
+li.analog-clock .dial {
+  background: transparent url('../images/clockface.jpg') no-repeat;
+  height: 180px;
+  width: 180px;
+  position: relative;
+  margin: 2px auto 0 auto;
+  list-style: none;
+}
+
+.hour, .min, .sec {
+  height: 180px;
+  width: 9px;
+  position: absolute;
+  top: 0px;
+  left: 85px;
+}
+
+.hour {
+  z-index: 1;
+  background: url('../images/hourhand.png') no-repeat;
+}
+
+.sec {
+  z-index: 3;
+  background: url('../images/sechand.png') no-repeat;
+}
+
+.min {
+  z-index: 2;
+  background: url('../images/minhand.png') no-repeat;
+}

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * This module provides advanced clock block which is user configurable
+ * This module provides advanced clock block which is user configurable.
  */
 
 /**
@@ -52,8 +52,8 @@ function advance_clock_ctools_plugin_directory($module, $plugin) {
 function advance_clock_menu() {
   // Link to administer advance clock module.
   $items['admin/config/user-interface/advance-clock'] = array(
-    'title' => t('Advance Clock'),
-    'description' => t('Advance Clock settings'),
+    'title' => 'Advance Clock',
+    'description' => 'Advance Clock settings',
     'position' => 'right',
     'weight' => 1,
     'page callback' => 'system_admin_menu_block_page',
@@ -63,8 +63,8 @@ function advance_clock_menu() {
   );
 
   $items['admin/config/user-interface/advance-clock/advance-clock-settings'] = array(
-    'title' => t('Advance Clock settings'),
-    'description' => t('Advance Clock configurations tools.'),
+    'title' => 'Advance Clock settings',
+    'description' => 'Advance Clock configurations tools.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('advance_clock_admin_settings'),
     'access arguments' => array('administer site configuration'),
@@ -73,8 +73,8 @@ function advance_clock_menu() {
   );
 
   $items['user/%user/add-clock'] = array(
-    'title' => t('Clock'),
-    'description' => t('Advance Clock configurations tools.'),
+    'title' => 'Clock',
+    'description' => 'Advance Clock configurations tools.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('advance_clock_add_clock_form'),
     'access arguments' => array('set advance clock'),
@@ -85,7 +85,7 @@ function advance_clock_menu() {
 }
 
 /**
- * Implementation of hook_theme()
+ * Implemens of hook_theme().
  */
 function advance_clock_theme($existing, $type, $theme, $path) {
   if ($type == 'module') {
@@ -103,17 +103,17 @@ function advance_clock_theme($existing, $type, $theme, $path) {
   }
 }
 
+/**
+ * Add clock form.
+ */
 function advance_clock_add_clock_form($form) {
-
-  // Text field
   $form['clock_zone'] = array(
-    '#title' => t('Select Clock\'s Zones'),
+    '#title' => t("Select Clock's Zones"),
     '#type' => 'checkboxes',
     '#options' => _advance_clock_get_clocks(),
     '#default_value' => _advance_clock_get_user_clocks(),
     '#required' => TRUE,
   );
-  // Submit
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => 'Save',
@@ -126,13 +126,16 @@ function advance_clock_add_clock_form($form) {
  * Form validation handler for hook_validate().
  */
 function advance_clock_add_clock_form_validate($form, &$form_state) {
-  //Number of counts for user
+  // Number of counts for user.
   $user_clocks = count(array_filter($form_state['values']['clock_zone']));
   if ($user_clocks > variable_get('advance_clock_count')) {
     form_set_error('clock_zone', t('Only @clock clock(s) allowed.', array('@clock' => variable_get('advance_clock_count', 1))));
   }
 }
 
+/**
+ * Add clock form submit.
+ */
 function advance_clock_add_clock_form_submit($form, &$form_state) {
   global $user;
   $user_clocks = _advance_clock_get_user_clocks();
@@ -148,11 +151,17 @@ function advance_clock_add_clock_form_submit($form, &$form_state) {
       ->fields(array(
         'uid' => $user->uid,
         'clock_zone' => $zones,
-        'timestamp' => time()
+        'timestamp' => time(),
       ))->execute();
   }
 }
 
+/**
+ * Fetch clocks for the users from db.
+ *
+ * @return array
+ *   Timezone array
+ */
 function _advance_clock_get_user_clocks() {
   global $user;
   $advance_user_clock = array();
@@ -168,6 +177,9 @@ function _advance_clock_get_user_clocks() {
   return $advance_user_clock;
 }
 
+/**
+ * Returns the list of timezones.
+ */
 function _advance_clock_get_clocks($blank = NULL) {
   $zonelist = timezone_identifiers_list();
   $zones = $blank ? array('' => t('- None selected -')) : array();
@@ -176,19 +188,19 @@ function _advance_clock_get_clocks($blank = NULL) {
     // reasons and should not be used, the list is filtered by a regular
     // expression.
     if (preg_match('!^((Africa|America|Antarctica|Arctic|Asia|Atlantic|Australia|Europe|Indian|Pacific)/|UTC$)!', $zone)) {
-      $timezoneTable[format_date(REQUEST_TIME, 'custom', ' O', $zone) / 100 . '|' . $zone] = t('(GMT@date) @zone,', array(
+      $timezone_list[format_date(REQUEST_TIME, 'custom', ' O', $zone) / 100 . '|' . $zone] = t('(GMT@date) @zone,', array(
         '@zone' => t(str_replace('_', ' ', $zone)),
         '@date' => format_date(REQUEST_TIME, 'custom', ' O', $zone),
-        '@d' => format_date(REQUEST_TIME, 'custom', ' O', $zone) / 100
+        '@d' => format_date(REQUEST_TIME, 'custom', ' O', $zone) / 100,
       ));
     }
   }
-  asort($timezoneTable);
-  return $timezoneTable;
+  asort($timezone_list);
+  return $timezone_list;
 }
 
 /**
- * hook_block_info.
+ * Implements hook_block_info().
  */
 function advance_clock_block_info() {
   // This example comes from node.module.
@@ -200,7 +212,7 @@ function advance_clock_block_info() {
 }
 
 /**
- * hook_block_view.
+ * Implements hook_block_view().
  */
 function advance_clock_block_view($delta = '') {
   // This example is adapted from node.module.
@@ -210,14 +222,16 @@ function advance_clock_block_view($delta = '') {
     case 'advance_clock_user_clock':
       $block['subject'] = t('Clocks');
       $block['content'] = _advance_clock_clock_list();
-      $block['content'] .= l('Configure Clocks', 'user/' . $user->uid . '/add-clock');
+      $block['content'] .= l(t('Configure Clocks'), 'user/' . $user->uid . '/add-clock');
       break;
   }
   return $block;
 }
 
+/**
+ * Render list of clocks.
+ */
 function _advance_clock_clock_list() {
-
   $users_clocks = _advance_clock_get_user_clocks();
   $module_path = drupal_get_path('module', 'advance_clock');
   $allowed_clock_count = variable_get('advance_clock_count');
@@ -250,7 +264,7 @@ function _advance_clock_clock_list() {
   foreach ($users_clocks as $key => $zone) {
     $user_zone = explode('|', $zone);
     $clocks[$key]['timezone'] = $user_zone[1];
-    $clocks[$key]['timediff']=$user_zone[0];
+    $clocks[$key]['timediff'] = $user_zone[0];
     $user_city = explode('/', $zone);
     $clocks[$key]['city'] = $user_city[1];
   }

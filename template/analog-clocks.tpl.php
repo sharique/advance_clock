@@ -3,8 +3,10 @@
  * @file
  * Analog clock template to display a list of rows.
  *
+ * Variables
  * - $clocks : list of clocks with time zone, city name and time difference
  * - $settings : settings for clocks
+ *
  * @ingroup advance_clock > templates
  */
 ?>
@@ -16,19 +18,18 @@ $settings = $variables['settings'];
   <div class="analog-clocks">
     <ul>
       <?php
-      foreach ($clocks as $key => $clock) {
+      foreach ($clocks as $key => $clock):
         ?>
         <li class="analog-clock">
           <div class="timezone"
                data-location="<?php print $clock['timezone']; ?>">
             <div class="city">
               <?php
-              if ($settings['show_city']) {
+              if ($settings['show_city']):
                 print $clock['city'];
-              }
-              else {
+              else:
                 print $clock['timezone'];
-              }
+              endif;
               ?>
             </div>
             <div class="display">
@@ -42,7 +43,7 @@ $settings = $variables['settings'];
           </div>
         </li>
       <?php
-      }
+      endforeach;
       ?>
     </ul>
   </div>

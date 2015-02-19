@@ -1,17 +1,12 @@
 <?php
 /**
  * @file
- * The node_statistics.admin.module
+ * The node_statistics.admin.module.
  */
 
 /**
- * Form constructor for the node_statistics_article_metrics settings form.
- *
- * @see hook_admin_settings_validate()
- *
- * @ingroup forms
+ * Admin setting form for Advance clock.
  */
-
 function advance_clock_admin_settings() {
   $form = array();
   $form['advance_clock_count'] = array(
@@ -41,12 +36,12 @@ function advance_clock_admin_settings() {
     '#type' => 'checkbox',
     '#title' => t('Show Only City Name'),
     '#default_value' => variable_get('advance_clock_show_only_city', FALSE),
-    '#description' => t('Show only City Name in clock\'s title.'),
+    '#description' => t('Show only City Name as clock title.'),
   );
 
   $form['advance_clock_hour24'] = array(
     '#type' => 'checkbox',
-    '#title' => t('24 hr\'s Clock'),
+    '#title' => t('24 hrs Clock'),
     '#default_value' => variable_get('advance_clock_hour24', FALSE),
     '#description' => t('Default is 12Hr Clock to display with digital clock.'),
   );
@@ -71,4 +66,3 @@ function advance_clock_admin_settings() {
 
   return system_settings_form($form);
 }
-
